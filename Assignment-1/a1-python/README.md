@@ -1,5 +1,4 @@
-PyOpenGL Skeleton Code
-
+# Setup
 Setup assumes that you are using a UNIX-based OS with python3 and python3-venv installed.
 
 To build the virtual environment and install necessary packages:
@@ -8,19 +7,21 @@ To build the virtual environment and install necessary packages:
 > make
 ```
 
-Note: You can also put any packages you want to use in the requirements.txt file.
-
 To activate the virtual environment:
 
 ```
 > source ./venv/bin/activate
 ```
 
-To run the skeleton code:
+# Running
+To run the program:
 
 ```
 > python ./src/main.py
 ```
 
-You should see the following output (once you've implemented the Window rendering):
-![example output for PyOpenGL skeleton code](./resources/example_output.png)
+# Controls
+Q: Exit program
+P: Pause/Unpause
+T: Increase orbit speed
+R: Decrease orbit speed
