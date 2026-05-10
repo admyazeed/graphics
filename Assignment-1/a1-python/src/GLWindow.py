@@ -74,12 +74,11 @@ class OpenGLWindow:
         self.shader = self.loadShaderProgram(
             "./shaders/simple.vert", "./shaders/simple.frag"
         )
-        glUseProgram(self.shader)
 
+        glUseProgram(self.shader)
         colorLoc = glGetUniformLocation(self.shader, "objectColor")
         glUniform3f(colorLoc, 1.0, 1.0, 1.0)
 
-        # Uncomment this for model rendering
         self.sun = Geometry("./resources/sphere.txt")
         self.earth = Geometry("./resources/sphere.txt")
         self.moon = Geometry("./resources/sphere.txt")
@@ -105,7 +104,7 @@ class OpenGLWindow:
         earth_model = rotate(self.time) @ transform(0.65, 0, 0) @ scale(0.04)
         moon_model = (
             earth_model @ rotate(self.time * 2) @ transform(6, 0, 0) @ scale(0.4)
-        )  # moon speed 2x earth speed
+        )
 
         # Draw sun
         glUniformMatrix4fv(modelLoc, 1, GL_TRUE, sun_model)

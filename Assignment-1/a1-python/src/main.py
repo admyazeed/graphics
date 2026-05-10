@@ -1,5 +1,3 @@
-import time
-
 import pygame as pg
 from GLWindow import *
 
