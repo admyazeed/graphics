@@ -33,6 +33,7 @@ class OpenGLWindow:
         self.triangle = None
         self.clock = pg.time.Clock()
         self.time = 0
+        self.earth_speed = 1
 
     def loadShaderProgram(self, vertex, fragment):
         with open(vertex, "r") as f:
@@ -94,13 +95,15 @@ class OpenGLWindow:
 
         # Update the rotation angle each frame, accounting for different framerates
         dt = self.clock.tick() / 1000.0
-        self.time += dt
+        self.time += self.earth_speed * dt
         self.time %= 2 * np.pi  # wrap around angle when it hits 360 degrees
 
         # Create planet matrices
         sun_model = scale(0.1)
         earth_model = rotate(self.time) @ transform(0.65, 0, 0) @ scale(0.04)
-        moon_model = earth_model @ rotate(self.time) @ transform(6, 0, 0) @ scale(0.4)
+        moon_model = (
+            earth_model @ rotate(self.time * 2) @ transform(6, 0, 0) @ scale(0.4)
+        )  # moon speed 2x earth speed
 
         # Draw sun
         glUniformMatrix4fv(modelLoc, 1, GL_TRUE, sun_model)

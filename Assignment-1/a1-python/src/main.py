@@ -21,6 +21,11 @@ def main():
                     event.key == pg.K_q
                 ):  # This event triggers when the q key is pressed down
                     running = False
+                elif event.key == pg.K_r:
+                    if win.earth_speed > 1:  # Don't let speed decrease to 0
+                        win.earth_speed -= 1
+                elif event.key == pg.K_t:
+                    win.earth_speed += 1
 
     pg.quit()
 
