@@ -83,6 +83,7 @@ class OpenGLWindow:
 
         sun_model = scale(0.1)
         earth_model = transform(0.65, 0, 0) @ scale(0.04)
+        moon_model = earth_model @ transform(6, 0, 0) @ scale(0.4)
 
         modelLoc = glGetUniformLocation(self.shader, "model")
         colorLoc = glGetUniformLocation(self.shader, "objectColor")
@@ -96,6 +97,11 @@ class OpenGLWindow:
         glUniformMatrix4fv(modelLoc, 1, GL_TRUE, earth_model)
         glUniform3f(colorLoc, 0, 0, 1.0)
         glDrawArrays(GL_TRIANGLES, 0, self.earth.vertexCount)
+
+        # Draw moon
+        glUniformMatrix4fv(modelLoc, 1, GL_TRUE, moon_model)
+        glUniform3f(colorLoc, 0.8, 0.8, 0.8)
+        glDrawArrays(GL_TRIANGLES, 0, self.moon.vertexCount)
 
         # Swap the front and back buffers on the window, effectively putting what we just "drew"
         # Onto the screen (whereas previously it only existed in memory)
