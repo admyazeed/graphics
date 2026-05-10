@@ -21,7 +21,6 @@ def main():
                     event.key == pg.K_q
                 ):  # This event triggers when the q key is pressed down
                     running = False
-        time.sleep(0.3)
 
     pg.quit()
 

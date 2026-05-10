@@ -19,10 +19,20 @@ def transform(x, y, z):
     )
 
 
+def rotate(theta):
+    c = np.cos(theta)
+    s = np.sin(theta)
+
+    return np.array(
+        [[c, -s, 0, 0], [s, c, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]], dtype=np.float32
+    )
+
+
 class OpenGLWindow:
     def __init__(self):
         self.triangle = None
         self.clock = pg.time.Clock()
+        self.time = 0
 
     def loadShaderProgram(self, vertex, fragment):
         with open(vertex, "r") as f:
@@ -59,9 +69,6 @@ class OpenGLWindow:
         self.vao = glGenVertexArrays(1)
         glBindVertexArray(self.vao)
 
-        # Note that this path is relative to your working directory when running the program
-        # You will need change the filepath if you are running the script from inside ./src/
-
         self.shader = self.loadShaderProgram(
             "./shaders/simple.vert", "./shaders/simple.frag"
         )
@@ -81,9 +88,13 @@ class OpenGLWindow:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glUseProgram(self.shader)
 
+        dt = self.clock.tick() / 1000.0
+        self.time += dt
+        self.time %= 2 * np.pi  # wrap around angle when it hits 360 degrees
+
         sun_model = scale(0.1)
-        earth_model = transform(0.65, 0, 0) @ scale(0.04)
-        moon_model = earth_model @ transform(6, 0, 0) @ scale(0.4)
+        earth_model = rotate(self.time) @ transform(0.65, 0, 0) @ scale(0.04)
+        moon_model = earth_model @ rotate(self.time) @ transform(6, 0, 0) @ scale(0.4)
 
         modelLoc = glGetUniformLocation(self.shader, "model")
         colorLoc = glGetUniformLocation(self.shader, "objectColor")
