@@ -11,6 +11,9 @@ def main():
     pg.init()
     win = OpenGLWindow()
     win.initGL()
+    print(
+        "Controls:\nQ: Quit\nP: Pause/Unpause\nT: Increase orbit speed\nR: Decrease orbit speed\n"
+    )
     while running:
         win.render()
         for event in pg.event.get():  # Grab all of the input events detected by PyGame
@@ -26,6 +29,8 @@ def main():
                         win.earth_speed -= 1
                 elif event.key == pg.K_t:
                     win.earth_speed += 1
+                elif event.key == pg.K_p:
+                    win.isPaused = not win.isPaused  # pause/unpause
 
     pg.quit()
 

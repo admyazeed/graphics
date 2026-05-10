@@ -34,6 +34,7 @@ class OpenGLWindow:
         self.clock = pg.time.Clock()
         self.time = 0
         self.earth_speed = 1
+        self.isPaused = False
 
     def loadShaderProgram(self, vertex, fragment):
         with open(vertex, "r") as f:
@@ -95,8 +96,9 @@ class OpenGLWindow:
 
         # Update the rotation angle each frame, accounting for different framerates
         dt = self.clock.tick() / 1000.0
-        self.time += self.earth_speed * dt
-        self.time %= 2 * np.pi  # wrap around angle when it hits 360 degrees
+        if not self.isPaused:
+            self.time += self.earth_speed * dt
+            self.time %= 2 * np.pi  # wrap around angle when it hits 360 degrees
 
         # Create planet matrices
         sun_model = scale(0.1)
