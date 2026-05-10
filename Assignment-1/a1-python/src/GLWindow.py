@@ -71,9 +71,9 @@ class OpenGLWindow:
         glUniform3f(colorLoc, 1.0, 1.0, 1.0)
 
         # Uncomment this for model rendering
-        self.sun = Geometry("./resources/sphere-fixed.txt")
-        self.earth = Geometry("./resources/sphere-fixed.txt")
-        self.moon = Geometry("./resources/sphere-fixed.txt")
+        self.sun = Geometry("./resources/sphere.txt")
+        self.earth = Geometry("./resources/sphere.txt")
+        self.moon = Geometry("./resources/sphere.txt")
 
         print("Setup complete!")
 
@@ -82,18 +82,18 @@ class OpenGLWindow:
         glUseProgram(self.shader)
 
         sun_model = scale(0.1)
-        earth_model = transform(1, 0, 0) @ scale(0.1)
+        earth_model = transform(0.65, 0, 0) @ scale(0.04)
 
         modelLoc = glGetUniformLocation(self.shader, "model")
         colorLoc = glGetUniformLocation(self.shader, "objectColor")
 
         # Draw sun
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, sun_model)
-        glUniform3f(colorLoc, 1.0, 0, 0)
+        glUniformMatrix4fv(modelLoc, 1, GL_TRUE, sun_model)
+        glUniform3f(colorLoc, 1.0, 0.8, 0)
         glDrawArrays(GL_TRIANGLES, 0, self.sun.vertexCount)
 
         # Draw earth
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, earth_model)
+        glUniformMatrix4fv(modelLoc, 1, GL_TRUE, earth_model)
         glUniform3f(colorLoc, 0, 0, 1.0)
         glDrawArrays(GL_TRIANGLES, 0, self.earth.vertexCount)
 
