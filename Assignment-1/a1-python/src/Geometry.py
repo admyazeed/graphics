@@ -1,7 +1,8 @@
-import numpy as np
 import warnings
 
+import numpy as np
 from OpenGL.GL import *
+
 
 class Geometry:
     def __init__(self, filename):
@@ -17,7 +18,9 @@ class Geometry:
 
         self.vbo = glGenBuffers(1)
         glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
-        glBufferData(GL_ARRAY_BUFFER, self.vertices.nbytes, self.vertices, GL_STATIC_DRAW)
+        glBufferData(
+            GL_ARRAY_BUFFER, self.vertices.nbytes, self.vertices, GL_STATIC_DRAW
+        )
 
         # Create Vertex Attributes Pointers Here
         # Note that you will need to use ctypes.c_void_p(i) to specify the starting index
@@ -45,7 +48,7 @@ class Geometry:
         vertices = []
 
         # open the obj file and read the data
-        with open(filename, 'r') as f:
+        with open(filename, "r") as f:
             line = f.readline()
             while line:
                 firstSpace = line.find(" ")
@@ -53,7 +56,9 @@ class Geometry:
                 if flag == "v":
                     # vertex
                     line = line.replace("v ", "")
-                    line = line.split()  # This accounts for '  ' spacing instead of ' ' spacing
+                    line = (
+                        line.split()
+                    )  # This accounts for '  ' spacing instead of ' ' spacing
                     l = [float(x) for x in line]
                     v.append(l)
                 elif flag == "vt":
@@ -81,7 +86,9 @@ class Geometry:
         hasTextureCoords = len(vt) > 0
 
         if not hasNormals:
-            warnings.warn("WARNING: Model has no normals. Will attempt to calculate them manually.")
+            warnings.warn(
+                "WARNING: Model has no normals. Will attempt to calculate them manually."
+            )
 
         if not hasTextureCoords:
             warnings.warn("WARNING: Model has no texture coordinates.")
@@ -140,13 +147,11 @@ class Geometry:
 
         # Convert vertex positions into numpy matrix
         if hasTexCoords:
-            vertex_positions = np.array([
-                vertices[int(vi.split('/')[0]) - 1] for vi in face
-            ])
+            vertex_positions = np.array(
+                [vertices[int(vi.split("/")[0]) - 1] for vi in face]
+            )
         else:
-            vertex_positions = np.array([
-                vertices[int(vi) - 1] for vi in face
-            ])
+            vertex_positions = np.array([vertices[int(vi) - 1] for vi in face])
 
         # We now calculate a face normal by taken the normalized cross product of (v[1]-v[0] x v[2] - [v0])
         # which the cross product of the tangent and the bi-tangent (which gives us the normal vector)
