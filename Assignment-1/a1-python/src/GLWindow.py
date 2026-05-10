@@ -28,6 +28,13 @@ class Triangle:
         glDeleteBuffers(1, (self.vbo,))
 
 
+def scale(s):
+    return np.array(
+        [[s, 0, 0, 0], [0, s, 0, 0], [0, 0, s, 0], [0, 0, 0, 1]],
+        dtype=np.float32,
+    )
+
+
 class OpenGLWindow:
     def __init__(self):
         self.triangle = None
@@ -84,6 +91,8 @@ class OpenGLWindow:
 
         # Uncomment this for model rendering
         self.sun = Geometry("./resources/sphere-fixed.txt")
+        self.earth = Geometry("./resources/sphere-fixed.txt")
+        self.moon = Geometry("./resources/sphere-fixed.txt")
 
         print("Setup complete!")
 
@@ -91,15 +100,12 @@ class OpenGLWindow:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glUseProgram(self.shader)
 
-        translation = np.array(
-            [[0.2, 0, 0, 0], [0, 0.2, 0, 0], [0, 0, 0.2, 0], [0, 0, 0, 1]],
-            dtype=np.float32,
-        )
+        sun_model = scale(0.2)
 
         modelLoc = glGetUniformLocation(self.shader, "model")
 
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, translation)
-
+        # Draw sun
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, sun_model)
         glDrawArrays(GL_TRIANGLES, 0, self.sun.vertexCount)
 
         # Swap the front and back buffers on the window, effectively putting what we just "drew"
@@ -108,7 +114,6 @@ class OpenGLWindow:
 
     def cleanup(self):
         glDeleteVertexArrays(1, (self.vao,))
-        # Uncomment for triangle rendering
-        # self.triangle.cleanup()
-        # Uncomment for model rendering
         self.sun.cleanup()
+        self.earth.cleanup()
+        self.moon.cleanup()
