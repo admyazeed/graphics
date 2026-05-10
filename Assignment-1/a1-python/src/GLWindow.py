@@ -47,7 +47,7 @@ class OpenGLWindow:
 
         return shader
 
-    def initGL(self, screen_width=640, screen_height=480):
+    def initGL(self, screen_width=640, screen_height=640):
         pg.init()
 
         pg.display.gl_set_attribute(
@@ -83,19 +83,24 @@ class OpenGLWindow:
         # self.triangle = Triangle(self.shader)
 
         # Uncomment this for model rendering
-        self.cube = Geometry("./resources/cube.obj")
+        self.sun = Geometry("./resources/sphere-fixed.txt")
 
         print("Setup complete!")
 
     def render(self):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        glUseProgram(self.shader)  # You may not need this line
+        glUseProgram(self.shader)
 
-        # Uncomment this for triangle rendering
-        # glDrawArrays(GL_TRIANGLES, 0, self.triangle.vertexCount)
+        translation = np.array(
+            [[0.2, 0, 0, 0], [0, 0.2, 0, 0], [0, 0, 0.2, 0], [0, 0, 0, 1]],
+            dtype=np.float32,
+        )
 
-        # Uncomment this for model rendering
-        glDrawArrays(GL_TRIANGLES, 0, self.cube.vertexCount)
+        modelLoc = glGetUniformLocation(self.shader, "model")
+
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, translation)
+
+        glDrawArrays(GL_TRIANGLES, 0, self.sun.vertexCount)
 
         # Swap the front and back buffers on the window, effectively putting what we just "drew"
         # Onto the screen (whereas previously it only existed in memory)
@@ -106,4 +111,4 @@ class OpenGLWindow:
         # Uncomment for triangle rendering
         # self.triangle.cleanup()
         # Uncomment for model rendering
-        self.cube.cleanup()
+        self.sun.cleanup()
