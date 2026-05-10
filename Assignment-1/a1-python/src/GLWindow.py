@@ -5,32 +5,16 @@ from OpenGL.GL import *
 from OpenGL.GL.shaders import compileProgram, compileShader
 
 
-class Triangle:
-    def __init__(self, shader):
-        self.vertexLoc = glGetAttribLocation(shader, "position")
-        self.vertices = np.array(
-            [0.0, 0.5, 0.0, -0.5, -0.5, 0.0, 0.5, -0.5, 0.0], dtype=np.float32
-        )
-
-        self.vertexCount = 3
-        self.vbo = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
-        glBufferData(
-            GL_ARRAY_BUFFER, self.vertices.nbytes, self.vertices, GL_STATIC_DRAW
-        )
-
-        glEnableVertexAttribArray(self.vertexLoc)
-        glVertexAttribPointer(
-            self.vertexLoc, 3, GL_FLOAT, GL_FALSE, 0, ctypes.c_void_p(0)
-        )
-
-    def cleanup(self):
-        glDeleteBuffers(1, (self.vbo,))
-
-
 def scale(s):
     return np.array(
         [[s, 0, 0, 0], [0, s, 0, 0], [0, 0, s, 0], [0, 0, 0, 1]],
+        dtype=np.float32,
+    )
+
+
+def transform(x, y, z):
+    return np.array(
+        [[1, 0, 0, x], [0, 1, 0, y], [0, 0, 1, z], [0, 0, 0, 1]],
         dtype=np.float32,
     )
 
@@ -86,9 +70,6 @@ class OpenGLWindow:
         colorLoc = glGetUniformLocation(self.shader, "objectColor")
         glUniform3f(colorLoc, 1.0, 1.0, 1.0)
 
-        # Uncomment this for triangle rendering
-        # self.triangle = Triangle(self.shader)
-
         # Uncomment this for model rendering
         self.sun = Geometry("./resources/sphere-fixed.txt")
         self.earth = Geometry("./resources/sphere-fixed.txt")
@@ -100,13 +81,21 @@ class OpenGLWindow:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glUseProgram(self.shader)
 
-        sun_model = scale(0.2)
+        sun_model = scale(0.1)
+        earth_model = transform(1, 0, 0) @ scale(0.1)
 
         modelLoc = glGetUniformLocation(self.shader, "model")
+        colorLoc = glGetUniformLocation(self.shader, "objectColor")
 
         # Draw sun
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, sun_model)
+        glUniform3f(colorLoc, 1.0, 0, 0)
         glDrawArrays(GL_TRIANGLES, 0, self.sun.vertexCount)
+
+        # Draw earth
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, earth_model)
+        glUniform3f(colorLoc, 0, 0, 1.0)
+        glDrawArrays(GL_TRIANGLES, 0, self.earth.vertexCount)
 
         # Swap the front and back buffers on the window, effectively putting what we just "drew"
         # Onto the screen (whereas previously it only existed in memory)
