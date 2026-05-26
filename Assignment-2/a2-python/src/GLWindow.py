@@ -91,7 +91,7 @@ class OpenGLWindow:
         glUseProgram(self.shader)
 
         # Update the rotation angle each frame, accounting for different framerates
-        dt = self.clock.tick() / 1000.0
+        dt = self.clock.tick(60) / 1000.0
         if not self.isPaused:
             self.time += self.earth_speed * dt
             self.time %= 2 * np.pi  # wrap around angle when it hits 360 degrees
