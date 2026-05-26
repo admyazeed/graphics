@@ -76,8 +76,9 @@ class OpenGLWindow:
         )
 
         glUseProgram(self.shader)
-        colorLoc = glGetUniformLocation(self.shader, "objectColor")
-        glUniform3f(colorLoc, 1.0, 1.0, 1.0)
+        self.modelLoc = glGetUniformLocation(self.shader, "model")
+        self.colorLoc = glGetUniformLocation(self.shader, "objectColor")
+        glUniform3f(self.colorLoc, 1.0, 1.0, 1.0)
 
         self.sun = Geometry("./resources/sphere.txt")
         self.earth = Geometry("./resources/sphere.txt")
@@ -88,10 +89,6 @@ class OpenGLWindow:
     def render(self):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glUseProgram(self.shader)
-
-        # Get model matrix and object colour from memory
-        modelLoc = glGetUniformLocation(self.shader, "model")
-        colorLoc = glGetUniformLocation(self.shader, "objectColor")
 
         # Update the rotation angle each frame, accounting for different framerates
         dt = self.clock.tick() / 1000.0
@@ -107,18 +104,18 @@ class OpenGLWindow:
         )
 
         # Draw sun
-        glUniformMatrix4fv(modelLoc, 1, GL_TRUE, sun_model)
-        glUniform3f(colorLoc, 1.0, 0.8, 0)
+        glUniformMatrix4fv(self.modelLoc, 1, GL_TRUE, sun_model)
+        glUniform3f(self.colorLoc, 1.0, 0.8, 0)
         glDrawArrays(GL_TRIANGLES, 0, self.sun.vertexCount)
 
         # Draw earth
-        glUniformMatrix4fv(modelLoc, 1, GL_TRUE, earth_model)
-        glUniform3f(colorLoc, 0, 0, 1.0)
+        glUniformMatrix4fv(self.modelLoc, 1, GL_TRUE, earth_model)
+        glUniform3f(self.colorLoc, 0, 0, 1.0)
         glDrawArrays(GL_TRIANGLES, 0, self.earth.vertexCount)
 
         # Draw moon
-        glUniformMatrix4fv(modelLoc, 1, GL_TRUE, moon_model)
-        glUniform3f(colorLoc, 0.8, 0.8, 0.8)
+        glUniformMatrix4fv(self.modelLoc, 1, GL_TRUE, moon_model)
+        glUniform3f(self.colorLoc, 0.8, 0.8, 0.8)
         glDrawArrays(GL_TRIANGLES, 0, self.moon.vertexCount)
 
         # Swap the front and back buffers on the window, effectively putting what we just "drew"
