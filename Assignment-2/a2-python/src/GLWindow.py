@@ -67,6 +67,9 @@ class OpenGLWindow:
         self.time = 0
         self.earth_speed = 1
         self.isPaused = False
+        self.camera_angle = 0
+        self.camera_height = 2
+        self.camera_radius = 3
 
     def loadShaderProgram(self, vertex, fragment):
         with open(vertex, "r") as f:
@@ -107,9 +110,13 @@ class OpenGLWindow:
             "./shaders/simple.vert", "./shaders/simple.frag"
         )
 
+        # Get uniform locations
         glUseProgram(self.shader)
         self.modelLoc = glGetUniformLocation(self.shader, "model")
         self.colorLoc = glGetUniformLocation(self.shader, "objectColor")
+        self.viewLoc = glGetUniformLocation(self.shader, "view")
+        self.projLoc = glGetUniformLocation(self.shader, "projection")
+
         glUniform3f(self.colorLoc, 1.0, 1.0, 1.0)
 
         self.sun = Geometry("./resources/sphere.txt")
@@ -127,6 +134,21 @@ class OpenGLWindow:
         if not self.isPaused:
             self.time += self.earth_speed * dt
             self.time %= 2 * np.pi  # wrap around angle when it hits 360 degrees
+
+        # Setup camera
+        camX = self.camera_radius * np.cos(self.camera_angle)
+        camZ = self.camera_radius * np.sin(self.camera_angle)
+        eye = np.array([camX, self.camera_height, camZ], dtype=np.float32)
+        target = np.array([0, 0, 0], dtype=np.float32)
+        up = np.array([0, 1, 0], dtype=np.float32)
+
+        # Create view matrix
+        view = lookAt(eye, target, up)
+        projection = orthographic(-2, 2, -2, 2, 0.1, 100)
+
+        # Upload projection and view matrices
+        glUniformMatrix4fv(self.viewLoc, 1, GL_TRUE, view)
+        glUniformMatrix4fv(self.projLoc, 1, GL_TRUE, projection)
 
         # Create planet matrices
         sun_model = scale(0.1)
