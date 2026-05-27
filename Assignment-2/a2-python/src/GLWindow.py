@@ -40,6 +40,26 @@ def orthographic(left, right, bottom, top, near, far):
     )
 
 
+def normalize(v):
+    return v / np.linalg.norm(v)
+
+
+def lookAt(eye, target, up):
+    forward = normalize(target - eye)
+    right = normalize(np.cross(forward, up))
+    true_up = np.cross(right, forward)
+
+    return np.array(
+        [
+            [right[0], right[1], right[2], -np.dot(right, eye)],
+            [true_up[0], true_up[1], true_up[2], -np.dot(true_up, eye)],
+            [-forward[0], -forward[1], -forward[2], np.dot(forward, eye)],
+            [0, 0, 0, 1],
+        ],
+        dtype=np.float32,
+    )
+
+
 class OpenGLWindow:
     def __init__(self):
         self.triangle = None
