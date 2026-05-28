@@ -29,6 +29,10 @@ def main():
                     win.earth_speed += 1
                 elif event.key == pg.K_p:
                     win.isPaused = not win.isPaused  # pause/unpause
+                elif event.key == pg.K_a:
+                    win.camera_angle -= 0.1
+                elif event.key == pg.K_d:
+                    win.camera_angle += 0.1
 
     pg.quit()
 
