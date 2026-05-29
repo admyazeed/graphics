@@ -2,3 +2,4 @@ numpy
 pygame
 PyOpenGL
 pyrr
+pillow
