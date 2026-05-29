@@ -208,7 +208,7 @@ class OpenGLWindow:
         glDrawArrays(GL_TRIANGLES, 0, self.moon.vertexCount)
 
         # Draw second light
-        sirius_model = transform(light2_pos[0], light2_pos[1], light2_pos[2]) @ scale(
+        sirius_model = transform(sirius_pos[0], sirius_pos[1], sirius_pos[2]) @ scale(
             0.02
         )
         glActiveTexture(GL_TEXTURE0)
