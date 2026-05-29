@@ -19,8 +19,8 @@ void main()
     vec3 texColour = texture(imageTexture, TexCoord).rgb;
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
-    int specAlpha = 32;
-    float specCoefficient = 0.4;
+    int specAlpha = 64;
+    float specCoefficient = 0.8;
 
     /////////// SUN LIGHT ///////////
     vec3 lightDir = normalize(sunLightPos - FragPos);
