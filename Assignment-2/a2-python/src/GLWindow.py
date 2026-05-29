@@ -71,6 +71,7 @@ class OpenGLWindow:
         self.camera_angle = 0
         self.camera_height = 2
         self.camera_radius = 3
+        self.light2_angle = 0
 
     def loadShaderProgram(self, vertex, fragment):
         with open(vertex, "r") as f:
@@ -114,19 +115,23 @@ class OpenGLWindow:
         self.viewLoc = glGetUniformLocation(self.shader, "view")
         self.projLoc = glGetUniformLocation(self.shader, "projection")
         self.textureLoc = glGetUniformLocation(self.shader, "imageTexture")
+        self.viewPosLoc = glGetUniformLocation(self.shader, "viewPos")
         self.lightPosLoc = glGetUniformLocation(self.shader, "lightPos")
         self.lightColorLoc = glGetUniformLocation(self.shader, "lightColor")
-        self.viewPosLoc = glGetUniformLocation(self.shader, "viewPos")
+        self.light2PosLoc = glGetUniformLocation(self.shader, "light2Pos")
+        self.light2ColorLoc = glGetUniformLocation(self.shader, "light2Color")
 
         glUniform1i(self.textureLoc, 0)
 
         self.sun = Geometry("./resources/sphere.txt")
         self.earth = Geometry("./resources/sphere.txt")
         self.moon = Geometry("./resources/sphere.txt")
+        self.lightSphere = Geometry("./resources/sphere.txt")
 
         self.sun_texture = Texture("./resources/sun_texture.png")
         self.earth_texture = Texture("./resources/earth_texture.png")
         self.moon_texture = Texture("./resources/moon_texture.png")
+        self.light_texture = Texture("./resources/sirius_texture.png")
 
         print("Setup complete!")
 
@@ -139,6 +144,8 @@ class OpenGLWindow:
         if not self.isPaused:
             self.time += self.earth_speed * dt
             self.time %= 2 * np.pi  # wrap around angle when it hits 360 degrees
+            self.light2_angle += dt
+            self.light2_angle %= 2 * np.pi
 
         # Setup camera
         camX = self.camera_radius * np.cos(self.camera_angle)
@@ -148,9 +155,21 @@ class OpenGLWindow:
         up = np.array([0, 1, 0], dtype=np.float32)
 
         # Setup lighting
-        glUniform3f(self.lightPosLoc, 0.0, 0.0, 0.0)  # Sun position
-        glUniform3f(self.lightColorLoc, 1.0, 0.9, 0.6)  # Yellowish colour
         glUniform3fv(self.viewPosLoc, 1, eye)
+        ## Sun lighting
+        glUniform3f(self.lightPosLoc, 0.0, 0.0, 0.0)
+        glUniform3f(self.lightColorLoc, 1.0, 0.9, 0.6)  # Yellowish colour
+        ## Second light
+        light2_pos = np.array(
+            [
+                1.5 * np.cos(self.light2_angle),
+                0.5,
+                1.5 * np.sin(self.light2_angle),
+            ],
+            dtype=np.float32,
+        )
+        glUniform3fv(self.light2PosLoc, 1, light2_pos)
+        glUniform3f(self.light2ColorLoc, 0.2, 0.4, 1.0)  # Bluish colour
 
         # Create view matrix
         view = lookAt(eye, target, up)
@@ -187,6 +206,15 @@ class OpenGLWindow:
 
         glUniformMatrix4fv(self.modelLoc, 1, GL_TRUE, moon_model)
         glDrawArrays(GL_TRIANGLES, 0, self.moon.vertexCount)
+
+        # Draw second light
+        light_model = transform(light2_pos[0], light2_pos[1], light2_pos[2]) @ scale(
+            0.02
+        )
+        glActiveTexture(GL_TEXTURE0)
+        self.light_texture.bind()
+        glUniformMatrix4fv(self.modelLoc, 1, GL_TRUE, light_model)
+        glDrawArrays(GL_TRIANGLES, 0, self.lightSphere.vertexCount)
 
         # Swap the front and back buffers on the window, effectively putting what we just "drew"
         # Onto the screen (whereas previously it only existed in memory)
