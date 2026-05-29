@@ -1,6 +1,8 @@
+![Screenshot of rendering](./resources/solar_system.png?raw=true "Screenshot of rendering")
+
 # Overview
 
-A simple OpenGL rendering of a miniature solar system featuring textured celestial bodies, dynamic lighting, and an orbiting camera.
+A simple OpenGL 3D rendering of a miniature solar system featuring textured celestial bodies, dynamic lighting, and an orbiting camera.
 
 The scene consists of:
 
