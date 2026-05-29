@@ -3,6 +3,7 @@ import pygame as pg
 from Geometry import Geometry
 from OpenGL.GL import *
 from OpenGL.GL.shaders import compileProgram, compileShader
+from SceneObject import SceneObject
 from Texture import Texture
 
 
@@ -65,13 +66,13 @@ class OpenGLWindow:
     def __init__(self):
         self.triangle = None
         self.clock = pg.time.Clock()
-        self.time = 0
-        self.earth_speed = 1
+        self.orbit_angle = 0
+        self.orbit_speed = 1
         self.isPaused = False
         self.camera_angle = 0
         self.camera_height = 2
         self.camera_radius = 3
-        self.light2_angle = 0
+        self.sirius_angle = 0
 
     def loadShaderProgram(self, vertex, fragment):
         with open(vertex, "r") as f:
@@ -123,15 +124,19 @@ class OpenGLWindow:
 
         glUniform1i(self.textureLoc, 0)
 
-        self.sun = Geometry("./resources/sphere.txt")
-        self.earth = Geometry("./resources/sphere.txt")
-        self.moon = Geometry("./resources/sphere.txt")
-        self.sirius = Geometry("./resources/sphere.txt")
-
-        self.sun_texture = Texture("./resources/sun_texture.png")
-        self.earth_texture = Texture("./resources/earth_texture.png")
-        self.moon_texture = Texture("./resources/moon_texture.png")
-        self.sirius_texture = Texture("./resources/sirius_texture.png")  # Second light
+        self.sun = SceneObject(
+            Geometry("./resources/sphere.txt"), Texture("./resources/sun_texture.png")
+        )
+        self.earth = SceneObject(
+            Geometry("./resources/sphere.txt"), Texture("./resources/earth_texture.png")
+        )
+        self.moon = SceneObject(
+            Geometry("./resources/sphere.txt"), Texture("./resources/moon_texture.png")
+        )
+        self.sirius = SceneObject(
+            Geometry("./resources/sphere.txt"),
+            Texture("./resources/sirius_texture.png"),
+        )  # Second light
 
         print("Setup complete!")
 
@@ -142,10 +147,10 @@ class OpenGLWindow:
         # Update the rotation angle each frame, accounting for different framerates
         dt = self.clock.tick(60) / 1000.0
         if not self.isPaused:
-            self.time += self.earth_speed * dt
-            self.time %= 2 * np.pi  # wrap around angle when it hits 360 degrees
-            self.light2_angle += dt
-            self.light2_angle %= 2 * np.pi
+            self.orbit_angle += self.orbit_speed * dt
+            self.orbit_angle %= 2 * np.pi  # wrap around angle when it hits 360 degrees
+            self.sirius_angle += dt
+            self.sirius_angle %= 2 * np.pi
 
         # Setup camera
         camX = self.camera_radius * np.cos(self.camera_angle)
@@ -162,9 +167,9 @@ class OpenGLWindow:
         ## Second light
         sirius_pos = np.array(
             [
-                1.5 * np.cos(self.light2_angle),
+                1.5 * np.cos(self.sirius_angle),
                 0.5,
-                1.5 * np.sin(self.light2_angle),
+                1.5 * np.sin(self.sirius_angle),
             ],
             dtype=np.float32,
         )
@@ -179,42 +184,26 @@ class OpenGLWindow:
         glUniformMatrix4fv(self.viewLoc, 1, GL_TRUE, view)
         glUniformMatrix4fv(self.projLoc, 1, GL_TRUE, projection)
 
-        # Create planet matrices
-        sun_model = scale(0.1)
-        earth_model = rotate(self.time) @ transform(0.65, 0, 0) @ scale(0.04)
-        moon_model = (
-            earth_model @ rotate(self.time * 2) @ transform(6, 0, 0) @ scale(0.4)
+        # Create transformation matrices
+        self.sun.model = scale(0.1)
+        self.earth.model = (
+            rotate(self.orbit_angle) @ transform(0.65, 0, 0) @ scale(0.04)
         )
-
-        # Draw sun
-        glActiveTexture(GL_TEXTURE0)
-        self.sun_texture.bind()
-
-        glUniformMatrix4fv(self.modelLoc, 1, GL_TRUE, sun_model)
-        glDrawArrays(GL_TRIANGLES, 0, self.sun.vertexCount)
-
-        # Draw earth
-        glActiveTexture(GL_TEXTURE0)
-        self.earth_texture.bind()
-
-        glUniformMatrix4fv(self.modelLoc, 1, GL_TRUE, earth_model)
-        glDrawArrays(GL_TRIANGLES, 0, self.earth.vertexCount)
-
-        # Draw moon
-        glActiveTexture(GL_TEXTURE0)
-        self.moon_texture.bind()
-
-        glUniformMatrix4fv(self.modelLoc, 1, GL_TRUE, moon_model)
-        glDrawArrays(GL_TRIANGLES, 0, self.moon.vertexCount)
-
-        # Draw second light
-        sirius_model = transform(sirius_pos[0], sirius_pos[1], sirius_pos[2]) @ scale(
-            0.02
+        self.moon.model = (
+            self.earth.model
+            @ rotate(self.orbit_angle * 2)
+            @ transform(6, 0, 0)
+            @ scale(0.4)
         )
+        self.sirius.model = transform(
+            sirius_pos[0], sirius_pos[1], sirius_pos[2]
+        ) @ scale(0.02)
+
         glActiveTexture(GL_TEXTURE0)
-        self.sirius_texture.bind()
-        glUniformMatrix4fv(self.modelLoc, 1, GL_TRUE, sirius_model)
-        glDrawArrays(GL_TRIANGLES, 0, self.sirius.vertexCount)
+        self.sun.draw(self.modelLoc)
+        self.earth.draw(self.modelLoc)
+        self.moon.draw(self.modelLoc)
+        self.sirius.draw(self.modelLoc)
 
         pg.display.flip()
 
@@ -224,7 +213,3 @@ class OpenGLWindow:
         self.earth.cleanup()
         self.moon.cleanup()
         self.sirius.cleanup()
-        self.sun_texture.cleanup()
-        self.earth_texture.cleanup()
-        self.moon_texture.cleanup()
-        self.sirius_texture.cleanup()

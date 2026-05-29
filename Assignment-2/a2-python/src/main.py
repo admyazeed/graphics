@@ -23,10 +23,10 @@ def main():
                 ):  # This event triggers when the q key is pressed down
                     running = False
                 elif event.key == pg.K_r:
-                    if win.earth_speed > 1:  # Don't let speed decrease to 0
-                        win.earth_speed -= 1
+                    if win.orbit_speed > 1:  # Don't let speed decrease to 0
+                        win.orbit_speed -= 1
                 elif event.key == pg.K_t:
-                    win.earth_speed += 1
+                    win.orbit_speed += 1
                 elif event.key == pg.K_p:
                     win.isPaused = not win.isPaused  # pause/unpause
                 elif event.key == pg.K_a:
