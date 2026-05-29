@@ -3,6 +3,7 @@ import pygame as pg
 from Geometry import Geometry
 from OpenGL.GL import *
 from OpenGL.GL.shaders import compileProgram, compileShader
+from Texture import Texture
 
 
 def scale(s):
@@ -116,12 +117,17 @@ class OpenGLWindow:
         self.colorLoc = glGetUniformLocation(self.shader, "objectColor")
         self.viewLoc = glGetUniformLocation(self.shader, "view")
         self.projLoc = glGetUniformLocation(self.shader, "projection")
+        self.textureLoc = glGetUniformLocation(self.shader, "imageTexture")
 
-        glUniform3f(self.colorLoc, 1.0, 1.0, 1.0)
+        glUniform1i(self.textureLoc, 0)
 
         self.sun = Geometry("./resources/sphere.txt")
         self.earth = Geometry("./resources/sphere.txt")
         self.moon = Geometry("./resources/sphere.txt")
+
+        self.sun_texture = Texture("./resources/sun_texture.png")
+        self.earth_texture = Texture("./resources/earth_texture.png")
+        self.moon_texture = Texture("./resources/moon_texture.png")
 
         print("Setup complete!")
 
@@ -158,16 +164,25 @@ class OpenGLWindow:
         )
 
         # Draw sun
+        glActiveTexture(GL_TEXTURE0)
+        self.sun_texture.bind()
+
         glUniformMatrix4fv(self.modelLoc, 1, GL_TRUE, sun_model)
         glUniform3f(self.colorLoc, 1.0, 0.8, 0)
         glDrawArrays(GL_TRIANGLES, 0, self.sun.vertexCount)
 
         # Draw earth
+        glActiveTexture(GL_TEXTURE0)
+        self.earth_texture.bind()
+
         glUniformMatrix4fv(self.modelLoc, 1, GL_TRUE, earth_model)
         glUniform3f(self.colorLoc, 0, 0, 1.0)
         glDrawArrays(GL_TRIANGLES, 0, self.earth.vertexCount)
 
         # Draw moon
+        glActiveTexture(GL_TEXTURE0)
+        self.moon_texture.bind()
+
         glUniformMatrix4fv(self.modelLoc, 1, GL_TRUE, moon_model)
         glUniform3f(self.colorLoc, 0.8, 0.8, 0.8)
         glDrawArrays(GL_TRIANGLES, 0, self.moon.vertexCount)
