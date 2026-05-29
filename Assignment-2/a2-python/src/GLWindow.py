@@ -116,27 +116,27 @@ class OpenGLWindow:
         self.projLoc = glGetUniformLocation(self.shader, "projection")
         self.textureLoc = glGetUniformLocation(self.shader, "imageTexture")
         self.viewPosLoc = glGetUniformLocation(self.shader, "viewPos")
-        self.lightPosLoc = glGetUniformLocation(self.shader, "lightPos")
-        self.lightColorLoc = glGetUniformLocation(self.shader, "lightColor")
-        self.light2PosLoc = glGetUniformLocation(self.shader, "light2Pos")
-        self.light2ColorLoc = glGetUniformLocation(self.shader, "light2Color")
+        self.sunLightPosLoc = glGetUniformLocation(self.shader, "sunLightPos")
+        self.sunLightColorLoc = glGetUniformLocation(self.shader, "sunLightColor")
+        self.siriusPosLoc = glGetUniformLocation(self.shader, "siriusPos")
+        self.siriusColorLoc = glGetUniformLocation(self.shader, "siriusColor")
 
         glUniform1i(self.textureLoc, 0)
 
         self.sun = Geometry("./resources/sphere.txt")
         self.earth = Geometry("./resources/sphere.txt")
         self.moon = Geometry("./resources/sphere.txt")
-        self.lightSphere = Geometry("./resources/sphere.txt")
+        self.sirius = Geometry("./resources/sphere.txt")
 
         self.sun_texture = Texture("./resources/sun_texture.png")
         self.earth_texture = Texture("./resources/earth_texture.png")
         self.moon_texture = Texture("./resources/moon_texture.png")
-        self.light_texture = Texture("./resources/sirius_texture.png")
+        self.sirius_texture = Texture("./resources/sirius_texture.png")  # Second light
 
         print("Setup complete!")
 
     def render(self):
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # Clear buffers
         glUseProgram(self.shader)
 
         # Update the rotation angle each frame, accounting for different framerates
@@ -156,11 +156,11 @@ class OpenGLWindow:
 
         # Setup lighting
         glUniform3fv(self.viewPosLoc, 1, eye)
-        ## Sun lighting
-        glUniform3f(self.lightPosLoc, 0.0, 0.0, 0.0)
-        glUniform3f(self.lightColorLoc, 1.0, 0.9, 0.6)  # Yellowish colour
+        glUniform3f(self.sunLightPosLoc, 0.0, 0.0, 0.0)  # Sun position
+        glUniform3f(self.sunLightColorLoc, 1.0, 0.9, 0.6)  # Yellowish colour
+
         ## Second light
-        light2_pos = np.array(
+        sirius_pos = np.array(
             [
                 1.5 * np.cos(self.light2_angle),
                 0.5,
@@ -168,8 +168,8 @@ class OpenGLWindow:
             ],
             dtype=np.float32,
         )
-        glUniform3fv(self.light2PosLoc, 1, light2_pos)
-        glUniform3f(self.light2ColorLoc, 0.2, 0.4, 1.0)  # Bluish colour
+        glUniform3fv(self.siriusPosLoc, 1, sirius_pos)
+        glUniform3f(self.siriusColorLoc, 0.2, 0.4, 1.0)  # Bluish colour
 
         # Create view matrix
         view = lookAt(eye, target, up)
@@ -208,16 +208,14 @@ class OpenGLWindow:
         glDrawArrays(GL_TRIANGLES, 0, self.moon.vertexCount)
 
         # Draw second light
-        light_model = transform(light2_pos[0], light2_pos[1], light2_pos[2]) @ scale(
+        sirius_model = transform(light2_pos[0], light2_pos[1], light2_pos[2]) @ scale(
             0.02
         )
         glActiveTexture(GL_TEXTURE0)
-        self.light_texture.bind()
-        glUniformMatrix4fv(self.modelLoc, 1, GL_TRUE, light_model)
-        glDrawArrays(GL_TRIANGLES, 0, self.lightSphere.vertexCount)
+        self.sirius_texture.bind()
+        glUniformMatrix4fv(self.modelLoc, 1, GL_TRUE, sirius_model)
+        glDrawArrays(GL_TRIANGLES, 0, self.sirius.vertexCount)
 
-        # Swap the front and back buffers on the window, effectively putting what we just "drew"
-        # Onto the screen (whereas previously it only existed in memory)
         pg.display.flip()
 
     def cleanup(self):

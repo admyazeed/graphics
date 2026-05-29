@@ -4,15 +4,18 @@ from PIL import Image
 
 class Texture:
     def __init__(self, filename):
+
+        # Get image data
         image = Image.open(filename)
         image = image.transpose(Image.FLIP_TOP_BOTTOM)
         image = image.convert("RGBA")
-
         width, height = image.size
         image_data = image.tobytes()
 
+        # Create texture
         self.texture = glGenTextures(1)
 
+        # Bind texture
         glBindTexture(GL_TEXTURE_2D, self.texture)
 
         # Texture wrapping
