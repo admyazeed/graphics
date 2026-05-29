@@ -99,9 +99,6 @@ class OpenGLWindow:
         pg.display.set_mode((screen_width, screen_height), pg.OPENGL | pg.DOUBLEBUF)
 
         glEnable(GL_DEPTH_TEST)
-        # Uncomment these two lines when perspective camera has been implemented
-        # glEnable(GL_CULL_FACE)
-        # glCullFace(GL_BACK)
         glClearColor(0, 0, 0, 1)
 
         self.vao = glGenVertexArrays(1)
@@ -114,10 +111,12 @@ class OpenGLWindow:
         # Get uniform locations
         glUseProgram(self.shader)
         self.modelLoc = glGetUniformLocation(self.shader, "model")
-        self.colorLoc = glGetUniformLocation(self.shader, "objectColor")
         self.viewLoc = glGetUniformLocation(self.shader, "view")
         self.projLoc = glGetUniformLocation(self.shader, "projection")
         self.textureLoc = glGetUniformLocation(self.shader, "imageTexture")
+        self.lightPosLoc = glGetUniformLocation(self.shader, "lightPos")
+        self.lightColorLoc = glGetUniformLocation(self.shader, "lightColor")
+        self.viewPosLoc = glGetUniformLocation(self.shader, "viewPos")
 
         glUniform1i(self.textureLoc, 0)
 
@@ -148,6 +147,11 @@ class OpenGLWindow:
         target = np.array([0, 0, 0], dtype=np.float32)
         up = np.array([0, 1, 0], dtype=np.float32)
 
+        # Setup lighting
+        glUniform3f(self.lightPosLoc, 0.0, 0.0, 0.0)  # Sun position
+        glUniform3f(self.lightColorLoc, 1.0, 0.9, 0.6)  # Yellowish colour
+        glUniform3fv(self.viewPosLoc, 1, eye)
+
         # Create view matrix
         view = lookAt(eye, target, up)
         projection = orthographic(-2, 2, -2, 2, 0.1, 100)
@@ -168,7 +172,6 @@ class OpenGLWindow:
         self.sun_texture.bind()
 
         glUniformMatrix4fv(self.modelLoc, 1, GL_TRUE, sun_model)
-        glUniform3f(self.colorLoc, 1.0, 0.8, 0)
         glDrawArrays(GL_TRIANGLES, 0, self.sun.vertexCount)
 
         # Draw earth
@@ -176,7 +179,6 @@ class OpenGLWindow:
         self.earth_texture.bind()
 
         glUniformMatrix4fv(self.modelLoc, 1, GL_TRUE, earth_model)
-        glUniform3f(self.colorLoc, 0, 0, 1.0)
         glDrawArrays(GL_TRIANGLES, 0, self.earth.vertexCount)
 
         # Draw moon
@@ -184,7 +186,6 @@ class OpenGLWindow:
         self.moon_texture.bind()
 
         glUniformMatrix4fv(self.modelLoc, 1, GL_TRUE, moon_model)
-        glUniform3f(self.colorLoc, 0.8, 0.8, 0.8)
         glDrawArrays(GL_TRIANGLES, 0, self.moon.vertexCount)
 
         # Swap the front and back buffers on the window, effectively putting what we just "drew"
