@@ -43,8 +43,13 @@ To run the program:
 
 # Controls
 Q: Exit program
+
 P: Pause/Unpause
+
 T: Increase orbit speed
+
 R: Decrease orbit speed
+
 A: Rotate camera left
+
 D: Rotate camera right
