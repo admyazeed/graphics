@@ -223,3 +223,8 @@ class OpenGLWindow:
         self.sun.cleanup()
         self.earth.cleanup()
         self.moon.cleanup()
+        self.sirius.cleanup()
+        self.sun_texture.cleanup()
+        self.earth_texture.cleanup()
+        self.moon_texture.cleanup()
+        self.sirius_texture.cleanup()
