@@ -53,3 +53,11 @@ R: Decrease orbit speed
 A: Rotate camera left
 
 D: Rotate camera right
+
+# Troubleshooting
+
+If the pygame installation is causing issues on Windows, install `pygame-ce` instead with:
+
+```
+> pip intall pygame-ce
+```
